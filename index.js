@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 var morgan = require('morgan')
 const app = express()
 
@@ -30,8 +31,7 @@ const unknownEndpoint = (request, response) => {
   }
 
 app.use(express.json())
-
-
+app.use(cors())
 
 morgan.token('body', function (req, res) { 
     console.log(req.body)
@@ -111,7 +111,7 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = 3000
+const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
