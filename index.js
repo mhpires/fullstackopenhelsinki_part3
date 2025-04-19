@@ -38,6 +38,7 @@ const generateId = () => {
     return String(Math.floor(Math.random() * 10000))
 }
 
+
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
@@ -53,42 +54,44 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  const exists = persons.some(person => person.name === body.name);
+  /*const exists = persons.some(person => person.name === body.name);
 
   if (exists){
     return response.status(400).json({ 
         error: 'name must be unique'
       })
-  }
+  }*/
 
-  const newPerson = {
+  const newPerson = new Person({
     name: body.name,
     number: body.number,
     id: generateId(),
-  }
+  })
 
-  persons = persons.concat(newPerson)
-
-  response.json(newPerson)
+  newPerson.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = request.params.id
+  Person.findById(request.params.id).then(person => {
+    response.json(person)
+  })
 
-  const person = persons.find(person => person.id === id)
-  if (person) {
+  /*if (person) {
     response.json(person)
   } else {
     console.log('x')
     response.status(404).end()
-  }
+  }*/
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  persons = persons.filter(person => person.id !== id)
-
-  response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.use(unknownEndpoint)
